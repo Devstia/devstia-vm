@@ -70,7 +70,7 @@ fi
 # Check if ISO file already exists
 DEBIAN_VERSION="12.9.0"
 ISO_FILENAME="debian-$DEBIAN_VERSION-amd64-netinst.iso"
-ISO_URL="https://cdimage.debian.org/cdimage/archive/$DEBIAN_VERSION/amd64/iso-cd/$ISO_FILENAME"
+ISO_URL="https://mirrors.ocf.berkeley.edu/debian-cd/$DEBIAN_VERSION/amd64/iso-cd/$ISO_FILENAME"
 if [ ! -f "build/$ISO_FILENAME" ]; then
     echo "Downloading Debian ISO..."
     curl -L -o "build/$ISO_FILENAME" "$ISO_URL"
