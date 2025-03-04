@@ -2,14 +2,14 @@
 
 # ======================================================== #
 #
-# Customized HestiaCP Installer for Debian on ARM64
-# Compare to: hestiacp/install/hst-install-debian.sh
+# Modified HestiaCP Installer for Debian w/MySQL8 on ARM64
+# https://github.com/
 #
 # Currently Supported Versions:
 # Debian 11 12
 #
 # ======================================================== #
-
+source ./mysql8-install-arm64.sh
 #----------------------------------------------------------#
 #                  Variables&Functions                     #
 #----------------------------------------------------------#
@@ -413,9 +413,9 @@ if [ "$mysql" = 'yes' ] && [ "$mysql8" = 'yes' ]; then
 	mysql='no'
 fi
 
-if [ "$mysql8" = 'yes' ] && [ "$architecture" = 'aarch64' ]; then
-	check_result 1 "Mysql 8 does not support ARM64 yet for Debian please use Ubuntu. Unable to continue"
-fi
+#if [ "$mysql8" = 'yes' ] && [ "$architecture" = 'aarch64' ]; then
+#	check_result 1 "Mysql 8 does not support ARM64 yet for Debian please use Ubuntu. Unable to continue"
+#fi
 
 # Checking root permissions
 if [ "x$(id -u)" != 'x0' ]; then
@@ -962,11 +962,11 @@ cp /etc/dovecot.conf $hst_backups/dovecot > /dev/null 2>&1
 cp -r /etc/dovecot/* $hst_backups/dovecot > /dev/null 2>&1
 
 # Backup MySQL/MariaDB configuration and data
-systemctl stop mysql > /dev/null 2>&1
-killall -9 mysqld > /dev/null 2>&1
-mv /var/lib/mysql $hst_backups/mysql/mysql_datadir > /dev/null 2>&1
-cp -r /etc/mysql/* $hst_backups/mysql > /dev/null 2>&1
-mv -f /root/.my.cnf $hst_backups/mysql > /dev/null 2>&1
+#systemctl stop mysql > /dev/null 2>&1
+#killall -9 mysqld > /dev/null 2>&1
+#mv /var/lib/mysql $hst_backups/mysql/mysql_datadir > /dev/null 2>&1
+#cp -r /etc/mysql/* $hst_backups/mysql > /dev/null 2>&1
+#mv -f /root/.my.cnf $hst_backups/mysql > /dev/null 2>&1
 
 # Backup Hestia
 systemctl stop hestia > /dev/null 2>&1
@@ -1783,17 +1783,17 @@ if [ "$mysql" = 'yes' ] || [ "$mysql8" = 'yes' ]; then
 		check_result $? "${mysql_type,,} start failed"
 	fi
 
-	if [ "$mysql_type" = 'MySQL' ]; then
-		update-rc.d mysql defaults > /dev/null 2>&1
-		systemctl -q enable mysql 2> /dev/null
-		systemctl start mysql >> $LOG
-		check_result $? "${mysql_type,,} start failed"
-	fi
+#	if [ "$mysql_type" = 'MySQL' ]; then
+#		update-rc.d mysql defaults > /dev/null 2>&1
+#		systemctl -q enable mysql 2> /dev/null
+#		systemctl start mysql >> $LOG
+#		check_result $? "${mysql_type,,} start failed"
+#	fi
 
 	# Securing MariaDB/MySQL installation
-	mpass=$(gen_pass)
-	echo -e "[client]\npassword='$mpass'\n" > /root/.my.cnf
-	chmod 600 /root/.my.cnf
+#    mpass=$(gen_pass)
+#	echo -e "[client]\npassword='$mpass'\n" > /root/.my.cnf
+#	chmod 600 /root/.my.cnf
 
 	if [ -f '/usr/bin/mariadb' ]; then
 		mysql_server="mariadb"
