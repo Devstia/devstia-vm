@@ -432,6 +432,10 @@ fi
 ###region Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
 
+# Turn off autoupdates
+cd /usr/local/hestia/bin
+./v-delete-cron-hestia-autoupdate
+
 # Install Virtuosoft's HesticCP-Pluginable project
 cd /etc/hestiacp
 git clone --depth 1 --branch "version2.0.0" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
@@ -449,12 +453,8 @@ touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
 ###endregion Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
 
-# Turn off autoupdates and restart HestiaCP
-cd /usr/local/hestia/bin
-v-delete-cron-hestia-autoupdate
+# Restart HestiaCP and turn logging on
 systemctl restart hestiacp
-
-# Turn on logging for now
 touch /etc/hestiacp/hooks/logging
 
 # Reboot the server
