@@ -306,7 +306,7 @@ fi
 cd /tmp
 if [ "$DEVSTIA_DOMAIN" == "local.dev.pw" ]; then
     echo "Installing HestiaCP for Devstia Personal Web edition."
-    bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named no --mariadb no --mysql8 yes --postgresql yes --exim no --dovecot no --sieve no --clamav no --spamassassin no --iptables yes --fail2ban no --quota no --api yes --interactive no --with-debs yes  --port '8083' --hostname 'local.dev.pw' --email 'devstia@dev.pw' --username 'admin' --password 'personalweb' --lang 'en' --webterminal no
+    bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named no --mariadb no --mysql8 yes --postgresql yes --exim no --dovecot no --sieve no --clamav no --spamassassin no --iptables yes --fail2ban no --quota no --api yes --interactive no --with-debs yes --port '8083' --hostname 'local.dev.pw' --email 'devstia@dev.pw' --username 'admin' --password 'personalweb' --lang 'en' --webterminal no
 
     # Customize the SSH login message for dev.pw
     cat <<EOT > /etc/update-motd.d/00-header
@@ -387,7 +387,7 @@ EOT
 else
     echo "Installing HestiaCP for Devstia Cloud Connect edition."
     CC_PW=$(date +%s | sha256sum | base64 | head -c 20)
-    bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mariadb no --mysql8 yes --postgresql yes --exim yes --dovecot yes --sieve no --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --interactive no --hostname $DEVSTIA_DOMAIN --email 'support@devstia.com' --username 'admin' --password '$CC_PW' --lang 'en' --webterminal no
+    bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mariadb no --mysql8 yes --postgresql yes --exim yes --dovecot yes --sieve no --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --interactive no --with-debs yes --port '8083' --hostname $DEVSTIA_DOMAIN --email 'support@devstia.com' --username 'admin' --password "$CC_PW" --lang 'en' --webterminal no
     echo "Devstia Cloud Connect admin password: $CC_PW"
 
     # Customize the SSH login message for dev.cc
