@@ -28,6 +28,7 @@ source ./build-vm-mac-arm64.sh
 ```
 ./build-devstia-vm-amd64.bat
 ```
+<!--
 * Linux x64
 ```
 ./build-vm-lnx-amd64.sh
@@ -36,7 +37,7 @@ source ./build-vm-mac-arm64.sh
 ```
 ./build-vm-lnx-arm64.sh
 ```
-
+-->
 #### 3) Follow the instructions for **[Install Debian Linux](install-debian-linux.md)**
 
 #### 4) Follow the instructions for **[Install HestiaCP](install-hestiacp.md)**
