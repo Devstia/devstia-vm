@@ -454,7 +454,7 @@ touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
 ###
 
 # Restart HestiaCP and turn logging on
-systemctl restart hestiacp
+systemctl restart hestia
 touch /etc/hestiacp/hooks/logging
 
 # Reboot the server
