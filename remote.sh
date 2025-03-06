@@ -449,6 +449,10 @@ touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
 ###endregion Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
 
+# Turn off autoupdates
+cd /usr/local/hestia/bin
+v-delete-cron-hestia-autoupdate
+
 # Reboot the server
 #echo "Shutting down server."
 #sleep 60
