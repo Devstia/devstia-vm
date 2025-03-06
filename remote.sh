@@ -450,6 +450,6 @@ touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
 ###
 
 # Reboot the server
-echo "Shutting down server."
-sleep 60
+#echo "Shutting down server."
+#sleep 60
 #poweroff
