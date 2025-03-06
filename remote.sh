@@ -2,7 +2,7 @@
 #
 # Devstia VM Remote Installer
 # Project URI: https://github.com/devstia/devstia-vm
-# Description: This script is used to install HestiaCP on a remote server
+# Description: This is the remote script used to install Devstia on a remote server
 # Author: Virtuosoft/Stephen J. Carnam
 # License AGPL-3.0, for other licensing options contact support@virtuosoft.com
 #
@@ -10,10 +10,6 @@
 # https://marketplace.visualstudio.com/items?itemName=maptz.regionfolder
 #
 
-#
-# Remote script to install and configure Devstia on a remote server
-# with sudo permissions; it is invoked by the install.sh script.
-#
 export DEBIAN_FRONTEND=noninteractive
 
 # Parse command-line arguments
@@ -58,7 +54,7 @@ cd /tmp
 wget "https://raw.githubusercontent.com/hestiacp/hestiacp/refs/tags/$HESTIACP_VERSION/install/hst-install-debian.sh"
 
 ###
-###region Begin Dectect ARM64; MySQL8 pre-install and modify HestiaCP installer
+#region Begin Dectect ARM64; MySQL8 pre-install and modify HestiaCP installer
 ###
 if [ "$(uname -m)" == "aarch64" ]; then
     echo "ARM64 architecture detected; pre-installing MySQL8."
@@ -229,7 +225,7 @@ EOT
     # Clean up
     rm /tmp/${MYSQL_TAR}
 
-    #region Create fake apt deb packages for MySQL8
+    #region Create fake apt deb packages to satisfy HestiaCP installer
     # Fake-mysql-server apt
     mkdir -p /var/local/fake-mysql-server
     cd /var/local/fake-mysql-server
@@ -285,7 +281,7 @@ EOT
 export MYSQL_TCP_PORT=3306
 export MYSQL_UNIX_PORT=/run/mysqld/mysqld.sock
 EOT
-    #endregion
+    #endregion  Create fake apt deb packages to satisfy HestiaCP installer
 
     # Modify HestiaCP installer; comment out code to allow MySQL8 on ARM64
     sed -i '416,418 s/^/#/' /tmp/hst-install-debian.sh
@@ -305,15 +301,15 @@ fi
 
 
 ###
-###region Install Devstia Personal Web edition
+###region Install HestiaCP for Devstia Personal Web edition
 ###
 cd /tmp
 if [ "$DEVSTIA_DOMAIN" == "local.dev.pw" ]; then
     echo "Installing HestiaCP for Devstia Personal Web edition."
     bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named no --mariadb no --mysql8 yes --postgresql yes --exim no --dovecot no --sieve no --clamav no --spamassassin no --iptables yes --fail2ban no --quota no --api yes --interactive no --with-debs yes  --port '8083' --hostname 'local.dev.pw' --email 'devstia@dev.pw' --username 'admin' --password 'personalweb' --lang 'en' --webterminal no
 
-# Customize the SSH login message for dev.pw
-cat <<EOT > /etc/update-motd.d/00-header
+    # Customize the SSH login message for dev.pw
+    cat <<EOT > /etc/update-motd.d/00-header
 #!/bin/bash
 printf '%b\n' '\033[2J\033[:H'
 clear
@@ -338,17 +334,17 @@ asciiart="\e[38;5;244m 
 \e[38;5;244m "
 echo -e "\$asciiart"
 EOT
-chmod +x /etc/update-motd.d/00-header
-: > /etc/motd
+    chmod +x /etc/update-motd.d/00-header
+    : > /etc/motd
 
-# White label the HestiaCP control panel interface
-./v-change-sys-config-value LOGIN_STYLE old
-./v-change-sys-config-value APP_NAME "Devstia PW"
-./v-change-sys-config-value FROM_NAME "Devstia PW"
+    # White label the HestiaCP control panel interface
+    cd /usr/local/hestia/bin
+    ./v-change-sys-config-value LOGIN_STYLE old
+    ./v-change-sys-config-value APP_NAME "Devstia PW"
+    ./v-change-sys-config-value FROM_NAME "Devstia PW"
 
-# Create our devstia user and package
-cd /usr/local/hestia/bin
-cat <<EOT > /tmp/devstia.txt
+    # Create our devstia user and package
+    cat <<EOT > /tmp/devstia.txt
 PACKAGE='devstia'
 WEB_TEMPLATE='default'
 BACKEND_TEMPLATE='default'
@@ -371,22 +367,22 @@ BACKUPS_INCREMENTAL='yes'
 BACKUPS='1'
 SHELL_JAIL_ENABLED='yes'
 EOT
-./v-add-user-package /tmp/devstia.txt devstia
-./v-add-user devstia personalweb devstia@dev.pw devstia Devstia PersonalWeb
-./v-update-user-package devstia
-chsh -s /bin/bash devstia
-./v-add-user-composer devstia
-./v-add-user-wp-cli devstia
-./v-change-sys-config-value POLICY_USER_EDIT_WEB_TEMPLATES yes
-./v-change-sys-config-value POLICY_SYSTEM_HIDE_ADMIN yes
-./v-change-user-role devstia admin
+    ./v-add-user-package /tmp/devstia.txt devstia
+    ./v-add-user devstia personalweb devstia@dev.pw devstia Devstia PersonalWeb
+    ./v-update-user-package devstia
+    chsh -s /bin/bash devstia
+    ./v-add-user-composer devstia
+    ./v-add-user-wp-cli devstia
+    ./v-change-sys-config-value POLICY_USER_EDIT_WEB_TEMPLATES yes
+    ./v-change-sys-config-value POLICY_SYSTEM_HIDE_ADMIN yes
+    ./v-change-user-role devstia admin
 ###
-###endregion Install Devstia Personal Web edition
+###endregion Install HestiaCP for Devstia Personal Web edition
 ###
 
 
 ###
-###region Install Devstia Cloud Connect edition
+###region Install HestiaCP for Devstia Cloud Connect edition
 ###
 else
     echo "Installing HestiaCP for Devstia Cloud Connect edition."
@@ -394,8 +390,8 @@ else
     bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mariadb no --mysql8 yes --postgresql yes --exim yes --dovecot yes --sieve no --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --interactive no --hostname $DEVSTIA_DOMAIN --email 'support@devstia.com' --username 'admin' --password '$CC_PW' --lang 'en' --webterminal no
     echo "Devstia Cloud Connect admin password: $CC_PW"
 
-# Customize the SSH login message for dev.cc
-cat <<EOT > /etc/update-motd.d/00-header
+    # Customize the SSH login message for dev.cc
+    cat <<EOT > /etc/update-motd.d/00-header
 #!/bin/bash
 printf '%b\n' '\033[2J\033[:H'
 clear
@@ -420,23 +416,37 @@ asciiart="\e[38;5;244m 
 \e[38;5;244m "
 echo -e "\$asciiart"
 EOT
-chmod +x /etc/update-motd.d/00-header
-: > /etc/motd
+    chmod +x /etc/update-motd.d/00-header
+    : > /etc/motd
 
-# White label the HestiaCP control panel interface
-./v-change-sys-config-value APP_NAME "Devstia CC"
-./v-change-sys-config-value FROM_NAME "Devstia CC"
+    # White label the HestiaCP control panel interface
+    cd /usr/local/hestia/bin
+    ./v-change-sys-config-value APP_NAME "Devstia CC"
+    ./v-change-sys-config-value FROM_NAME "Devstia CC"
 fi
 ###
-###endregion Install Devstia Cloud Connect edition
+###endregion Install HestiaCP for Devstia Cloud Connect edition
 ###
 
 ###
-###region Install Virtuosoft's HesticCP-Pluginable and Plugins
+###region Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
 
+# Install Virtuosoft's HesticCP-Pluginable project
+cd /etc/hestiacp
+git clone --depth 1 --branch "version2.0.0" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
+cd /etc/hestiacp/hooks
+./post_install.sh
+
+# Install Virtuosoft's HCPP-NodeApp plugin
+cd /usr/local/hestia/plugins
+git clone --depth 1 --branch "version2.0.0" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./hcpp-nodeapp
+cd /usr/local/hestia/plugins/hcpp-nodeapp
+./install.sh
+touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
+
 ###
-###endregion Install Virtuosoft's HesticCP-Pluginable and Plugins
+###endregion Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
 
 # Reboot the server
