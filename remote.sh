@@ -498,7 +498,7 @@ systemctl restart hestia
 touch /etc/hestiacp/hooks/logging
 
 if [ "$DEVSTIA_DOMAIN" == "local.dev.pw" ]; then
-
+    echo "Devstia Personal Web at https://$DEVSTIA_DOMAIN:8083 admin password: personalweb"
 else
     echo "Devstia Cloud Connect at https://$DEVSTIA_DOMAIN:8083 admin password: $CC_PW"
 fi
