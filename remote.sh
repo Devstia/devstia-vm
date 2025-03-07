@@ -388,7 +388,6 @@ else
     echo "Installing HestiaCP for Devstia Cloud Connect edition."
     CC_PW=$(date +%s | sha256sum | base64 | head -c 20)
     bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mariadb no --mysql8 yes --postgresql yes --exim yes --dovecot yes --sieve no --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --interactive no --with-debs yes --port '8083' --hostname $DEVSTIA_DOMAIN --email 'support@devstia.com' --username 'admin' --password "$CC_PW" --lang 'en' --webterminal no
-    echo "Devstia Cloud Connect admin password: $CC_PW"
 
     # Customize the SSH login message for dev.cc
     cat <<EOT > /etc/update-motd.d/00-header
@@ -419,22 +418,59 @@ EOT
     chmod +x /etc/update-motd.d/00-header
     : > /etc/motd
 
+    # Limit ClamAV threads
+    file_path="/etc/clamav/clamd.conf"
+    if [ -f "$file_path" ]; then
+        echo "MaxThreads 2" >> "$file_path"
+    fi
+
     # White label the HestiaCP control panel interface
     cd /usr/local/hestia/bin
     ./v-change-sys-config-value APP_NAME "Devstia CC"
     ./v-change-sys-config-value FROM_NAME "Devstia CC"
+
+    # Add default IP blacklist and turn off autoupdates in production
+    ./v_add_firewall_ipset blacklist 'script:/usr/local/hestia/install/common/firewall/ipset/blacklist.sh' v4 yes
+    ./v-delete-cron-hestia-autoupdate 
+
 fi
 ###
 ###endregion Install HestiaCP for Devstia Cloud Connect edition
 ###
 
+
+###
+###region Operating System Settings
+###
+
+# Allocate 4G Swap file
+sudo fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+line="/swapfile none swap sw 0 0"
+echo "$line" >> /etc/fstab
+
+# Limit the journal for production
+file_path="/etc/systemd/journald.conf"
+
+# Backup the original file
+cp "$file_path" "$file_path.bak"
+
+# Update the file with the desired values
+file_path="/etc/systemd/journald.conf"
+sed -i 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' "$file_path"
+sed -i 's/^#SystemKeepFree=.*/SystemKeepFree=50M/' "$file_path"
+sed -i 's/^#SystemMaxFileSize=.*/SystemMaxFileSize=50M/' "$file_path"
+sed -i 's/^#SystemMaxFiles=.*/SystemMaxFiles=5/' "$file_path"
+
+###
+###endregion Operating System Settings
+###
+
 ###
 ###region Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
-
-# Turn off autoupdates
-cd /usr/local/hestia/bin
-./v-delete-cron-hestia-autoupdate
 
 # Install Virtuosoft's HesticCP-Pluginable project
 cd /etc/hestiacp
@@ -453,10 +489,19 @@ touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
 ###endregion Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
 ###
 
+# Turn off autoupdates for debugging
+cd /usr/local/hestia/bin
+./v-delete-cron-hestia-autoupdate
+
 # Restart HestiaCP and turn logging on
 systemctl restart hestia
 touch /etc/hestiacp/hooks/logging
 
+if [ "$DEVSTIA_DOMAIN" == "local.dev.pw" ]; then
+
+else
+    echo "Devstia Cloud Connect at https://$DEVSTIA_DOMAIN:8083 admin password: $CC_PW"
+fi
 # Reboot the server
 #echo "Shutting down server."
 #sleep 60
