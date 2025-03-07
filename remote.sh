@@ -430,7 +430,7 @@ EOT
     ./v-change-sys-config-value FROM_NAME "Devstia CC"
 
     # Add default IP blacklist and turn off autoupdates in production
-    ./v_add_firewall_ipset blacklist 'script:/usr/local/hestia/install/common/firewall/ipset/blacklist.sh' v4 yes
+    ./v-add-firewall-ipset blacklist 'script:/usr/local/hestia/install/common/firewall/ipset/blacklist.sh' v4 yes
     ./v-delete-cron-hestia-autoupdate 
 
 fi
