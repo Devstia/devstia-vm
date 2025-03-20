@@ -338,7 +338,7 @@ EOT
     : > /etc/motd
 
     # White label the HestiaCP control panel interface
-    cd /usr/local/hestia/bin
+    cd /usr/local/hestia/bin || exit
     ./v-change-sys-config-value LOGIN_STYLE old
     ./v-change-sys-config-value APP_NAME "Devstia PW"
     ./v-change-sys-config-value FROM_NAME "Devstia PW"
@@ -374,7 +374,7 @@ EOT
     ./v-add-user-composer devstia
     ./v-add-user-wp-cli devstia
     ./v-change-sys-config-value POLICY_USER_EDIT_WEB_TEMPLATES yes
-    ./v-change-sys-config-value POLICY_SYSTEM_HIDE_ADMIN yes
+    ./v-change-sys-config-value POLICY_SYSTEM_HIDE_ADMIN no
     ./v-change-user-role devstia admin
 ###
 ###endregion Install HestiaCP for Devstia Personal Web edition
@@ -484,6 +484,13 @@ git clone --depth 1 --branch "version2.0.0" https://github.com/virtuosoft-dev/hc
 cd /usr/local/hestia/plugins/nodeapp
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
+
+# Install Virtuosoft's HCPP-VitePress plugin
+cd /usr/local/hestia/plugins
+git clone --depth 1 https://github.com/virtuosoft-dev/hcpp-vitepress.git ./vitepress
+cd /usr/local/hestia/plugins/vitepress
+./install
+touch "/usr/local/hestia/data/hcpp/installed/vitepress"
 
 ###
 ###endregion Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
