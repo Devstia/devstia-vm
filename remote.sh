@@ -474,23 +474,46 @@ sed -i 's/^#SystemMaxFiles=.*/SystemMaxFiles=5/' "$file_path"
 
 # Install Virtuosoft's HesticCP-Pluginable project
 cd /etc/hestiacp
-git clone --depth 1 --branch "version2.0.0" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
+git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
 cd /etc/hestiacp/hooks
 ./post_install.sh
 
 # Install Virtuosoft's HCPP-NodeApp plugin
 cd /usr/local/hestia/plugins
-git clone --depth 1 --branch "version2.0.0" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
+git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
 cd /usr/local/hestia/plugins/nodeapp
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
 
+export NVM_DIR=/opt/nvm && source /opt/nvm/nvm.sh
+
 # Install Virtuosoft's HCPP-VitePress plugin
 cd /usr/local/hestia/plugins
-git clone --depth 1 https://github.com/virtuosoft-dev/hcpp-vitepress.git ./vitepress
+git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hcpp-vitepress.git ./vitepress
 cd /usr/local/hestia/plugins/vitepress
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/vitepress"
+
+# Install Virtuosoft's HCPP-NodeRED plugin
+cd /usr/local/hestia/plugins
+git clone --depth 1 --branch "v2.1.0" https://github.com/virtuosoft-dev/hcpp-nodered.git ./nodered
+cd /usr/local/hestia/plugins/nodered
+./install
+touch "/usr/local/hestia/data/hcpp/installed/nodered"
+
+# Install Virtuosoft's HCPP-NodeBB plugin
+cd /usr/local/hestia/plugins
+git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hcpp-nodebb.git ./nodebb
+cd /usr/local/hestia/plugins/nodebb
+./install
+touch "/usr/local/hestia/data/hcpp/installed/nodebb"
+
+# Install Virtuosoft's HCPP-Ghost plugin
+cd /usr/local/hestia/plugins
+git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hcpp-ghost.git ./ghost
+cd /usr/local/hestia/plugins/ghost
+./install
+touch "/usr/local/hestia/data/hcpp/installed/ghost"
 
 ###
 ###endregion Install Virtuosoft's HesticCP-Pluginable and HCPP Based Plugins
