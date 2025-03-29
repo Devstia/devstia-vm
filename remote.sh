@@ -486,7 +486,7 @@ cd /etc/hestiacp/hooks
 
 # Install Virtuosoft's HCPP-NodeApp plugin
 cd /usr/local/hestia/plugins
-git clone --depth 1 --branch "v2.0.1" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
+git clone --depth 1 --branch "v2.0.2" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
 cd /usr/local/hestia/plugins/nodeapp
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
