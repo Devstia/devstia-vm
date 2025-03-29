@@ -421,7 +421,12 @@ EOT
     # Limit ClamAV threads
     file_path="/etc/clamav/clamd.conf"
     if [ -f "$file_path" ]; then
-        echo "MaxThreads 2" >> "$file_path"
+        # Update the MaxThreads value if it exists, or add it if it doesn't
+        if grep -q "^MaxThreads" "$file_path"; then
+            sed -i 's/^MaxThreads.*/MaxThreads 2/' "$file_path"
+        else
+            echo "MaxThreads 2" >> "$file_path"
+        fi
     fi
 
     # White label the HestiaCP control panel interface
@@ -432,6 +437,7 @@ EOT
     # Add default IP blacklist and turn off autoupdates in production
     ./v-add-firewall-ipset blacklist 'script:/usr/local/hestia/install/common/firewall/ipset/blacklist.sh' v4 yes
     ./v-delete-cron-hestia-autoupdate 
+    ./v-add-letsencrypt-host
 
 fi
 ###
@@ -474,13 +480,13 @@ sed -i 's/^#SystemMaxFiles=.*/SystemMaxFiles=5/' "$file_path"
 
 # Install Virtuosoft's HesticCP-Pluginable project
 cd /etc/hestiacp
-git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
+git clone --depth 1 --branch "v2.0.1" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
 cd /etc/hestiacp/hooks
 ./post_install.sh
 
 # Install Virtuosoft's HCPP-NodeApp plugin
 cd /usr/local/hestia/plugins
-git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
+git clone --depth 1 --branch "v2.0.1" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
 cd /usr/local/hestia/plugins/nodeapp
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
@@ -489,7 +495,7 @@ export NVM_DIR=/opt/nvm && source /opt/nvm/nvm.sh
 
 # Install Virtuosoft's HCPP-VitePress plugin
 cd /usr/local/hestia/plugins
-git clone --depth 1 --branch "v2.0.0" https://github.com/virtuosoft-dev/hcpp-vitepress.git ./vitepress
+git clone --depth 1 --branch "v2.0.1" https://github.com/virtuosoft-dev/hcpp-vitepress.git ./vitepress
 cd /usr/local/hestia/plugins/vitepress
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/vitepress"
