@@ -41,6 +41,9 @@ update-grub
 # Remove apparmor
 echo "Removing AppArmor."
 apt remove -y apparmor
+systemctl stop apparmor.service
+systemctl disable apparmor.service
+rm -rf /etc/apparmor.d
 
 # Add ll globally
 alias ll='ls -alF'
