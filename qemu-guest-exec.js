@@ -1,22 +1,3 @@
-/**
- * Using QEMU Guest startup with qemu agent already installed
- * qemu-system-x86_64 \
-    -machine q35,vmport=off -accel hvf \
-    -cpu qemu64-v1 \
-    -vga virtio \
-    -smp cpus=4,sockets=1,cores=4,threads=1 \
-    -m 4G \
-    -bios bios.img \
-    -display default,show-cursor=on \
-    -net nic -net user,hostfwd=tcp::8022-:22,hostfwd=tcp::80-:80,hostfwd=tcp::443-:443,hostfwd=tcp::8083-:8083 \
-    -drive if=virtio,format=qcow2,file=devstia-amd64.img \
-    -device virtio-balloon-pci \
-    -device virtio-serial-pci \
-    -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
-    -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-    -nographic
- */
-
 // const { log, setLoggingEnabled } = require('./logger'); // Import the logger
 const net = require('net');
 const SOCKET_PATH = '/tmp/qga.sock'; // Path to the QEMU Guest Agent socket

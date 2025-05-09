@@ -9,27 +9,36 @@ if [ -z "$qemu_path" ]; then
 fi
 
 # Create the build folder if it doesn't exist
-build_folder="build"
-if [ ! -d "$build_folder" ]; then
+if [ ! -d "build" ]; then
     echo "Creating build folder..."
-    mkdir "$build_folder"
+    mkdir "build"
 fi
 
 # Check if debian-amd64.zip exists in the build folder
-zip_file="$build_folder/debian-amd64.zip"
+zip_file="build/debian-amd64.zip"
 if [ ! -f "$zip_file" ]; then
     echo "debian-amd64.zip not found in the build folder. Downloading..."
     curl -L -o "$zip_file" "https://github.com/virtuosoft-dev/qemu-debian/releases/download/v12.10.0/debian-amd64.zip"
     echo "Download complete. Unzipping..."
-    unzip -o "$zip_file" -d "$build_folder"
+    unzip -o "$zip_file" -d "build"
     echo "Unzipping complete."
 else
     echo "debian-amd64.zip already exists in the build folder."
 fi
 
-# Create an empty disk for the overlay
+# Check the overlay image exists and remove it
+if [ -f "build/cp-local001.dev.pw.img" ]; then
+    echo "Removing old overlay image..."
+    rm -f "build/cp-local001.dev.pw.img"
+fi
 
-# Spawn the VM with the debian-amd64 base image
+cd build
+echo "Creating overlay image..."
+qemu-img create -f qcow2 -o backing_file=./debian-amd64.img,backing_fmt=qcow2 cp-local001.dev.pw.img
+echo "Overlay image created."
+
+# Spawn the VM with the debian-amd64 base image asynchronously
+echo "Booting our Debian Linux system..."
 qemu-system-x86_64 \
     -machine q35,vmport=off -accel hvf \
     -cpu qemu64-v1 \
@@ -39,7 +48,7 @@ qemu-system-x86_64 \
     -bios bios.img \
     -display default,show-cursor=on \
     -net nic -net user,hostfwd=tcp::8022-:22,hostfwd=tcp::80-:80,hostfwd=tcp::443-:443,hostfwd=tcp::8083-:8083 \
-    -drive if=virtio,format=qcow2,file=devstia-amd64.img \
+    -drive if=virtio,format=qcow2,file=cp-local001.dev.pw.img \
     -device virtio-balloon-pci \
     -device virtio-serial-pci \
     -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
