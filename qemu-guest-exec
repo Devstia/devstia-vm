@@ -1,4 +1,5 @@
-// const { log, setLoggingEnabled } = require('./logger'); // Import the logger
+#!/usr/bin/env node
+
 const net = require('net');
 const SOCKET_PATH = '/tmp/qga.sock'; // Path to the QEMU Guest Agent socket
 
@@ -128,13 +129,29 @@ function executeCommandInGuest(command, callback) {
   });
 }
 
-// Example usage:
-setLoggingEnabled(true); // Enable or disable logging
-
-executeCommandInGuest('head -n 10 /tmp/hcpp.log', (err, output) => {
-  if (err) {
-    log(`Error executing command: ${err.message}`, 'error');
-  } else {
-    log(`Command output: ${output}`);
+// Main function to handle CLI arguments
+function main() {
+  const args = process.argv.slice(2); // Get command-line arguments
+  if (args.length === 0) {
+    console.error('Usage: qemu-guest-exec.js <command>');
+    process.exit(1);
   }
-});
+
+  const command = args.join(' '); // Combine all arguments into a single command
+  log(`Executing command in guest: ${command}`);
+
+  executeCommandInGuest(command, (err, output) => {
+    if (err) {
+      console.error(`Error executing command: ${err.message}`);
+      process.exit(1);
+    } else {
+      console.log(`Command output:\n${output}`);
+      process.exit(0);
+    }
+  });
+}
+
+// Run the main function if the script is executed directly
+if (require.main === module) {
+  main();
+}

@@ -53,4 +53,7 @@ qemu-system-x86_64 \
     -device virtio-serial-pci \
     -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
     -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-    -nographic
+    -nographic &
+
+# Wait for the VM to boot
+
