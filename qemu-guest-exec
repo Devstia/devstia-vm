@@ -1,21 +1,24 @@
 #!/usr/bin/env node
 
 const net = require('net');
-const SOCKET_PATH = '/tmp/qga.sock'; // Path to the QEMU Guest Agent socket
+const os = require('os');
+const path = require('path');
 
-// Dummy log function
+// Determine the socket path based on the operating system
+const SOCKET_PATH = os.platform() === 'win32' ? '\\\\.\\pipe\\qga' : '/tmp/qga.sock';
+
+// Log function
 function log(message, level = 'info') {
   const levels = { info: 'INFO', error: 'ERROR', warn: 'WARN' };
   console.log(`[${levels[level] || 'INFO'}]: ${message}`);
 }
 
-// Dummy setLoggingEnabled function
-function setLoggingEnabled(enabled) {
-  console.log(`Logging is now ${enabled ? 'enabled' : 'disabled'}`);
-}
-
 function executeCommandInGuest(command, callback) {
-  const tempOutput = `/tmp/output-${Math.random().toString(36).substring(2, 15)}.txt`;
+  // Use os.tmpdir() to determine the temporary directory
+  const tempDir = os.tmpdir();
+  const tempOutput = os.platform() === 'win32'
+    ? path.join(tempDir, `output-${Math.random().toString(36).substring(2, 15)}.txt`)
+    : `/tmp/output-${Math.random().toString(36).substring(2, 15)}.txt`;
 
   const client = net.createConnection(SOCKET_PATH, () => {
     log('Connected to QEMU Guest Agent');
@@ -23,8 +26,10 @@ function executeCommandInGuest(command, callback) {
     const executeCommand = {
       execute: 'guest-exec',
       arguments: {
-        path: '/bin/bash',
-        arg: ['-c', `${command} > ${tempOutput} 2>&1`]
+        path: os.platform() === 'win32' ? 'cmd.exe' : '/bin/bash',
+        arg: os.platform() === 'win32'
+          ? ['/c', `${command} > ${tempOutput} 2>&1`]
+          : ['-c', `${command} > ${tempOutput} 2>&1`]
       }
     };
 
@@ -95,8 +100,10 @@ function executeCommandInGuest(command, callback) {
         const cleanupCommand = {
           execute: 'guest-exec',
           arguments: {
-            path: '/bin/bash',
-            arg: ['-c', `rm -f ${tempOutput}`]
+            path: os.platform() === 'win32' ? 'cmd.exe' : '/bin/bash',
+            arg: os.platform() === 'win32'
+              ? ['/c', `del ${tempOutput}`]
+              : ['-c', `rm -f ${tempOutput}`]
           }
         };
 
