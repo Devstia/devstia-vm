@@ -1,0 +1,18 @@
+qemu-system-aarch64 \
+    -machine virt -accel hvf \
+    -cpu host \
+    -vga none \
+    -smp cpus=4,sockets=1,cores=4,threads=1 \
+    -m 4G \
+    -drive if=pflash,format=raw,file=efi_arm64.img,file.locking=off,readonly=on \
+    -drive if=pflash,format=raw,file=efi_arm64_vars.img \
+    -device nec-usb-xhci,id=usb-bus \
+    -device usb-storage,drive=cdrom01,removable=true,bootindex=1,bus=usb-bus.0 -drive if=none,media=cdrom,id=cdrom01,file=$ISO_FILENAME,readonly=on \
+    -device virtio-blk-pci,drive=drivedevstia-arm64,bootindex=0 \
+    -drive if=none,media=disk,id=drivedevstia-arm64,file=devstia-arm64.img,discard=unmap,detect-zeroes=unmap \
+    -device virtio-balloon-pci \
+    -device virtio-serial-pci \
+    -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
+    -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
+    -net nic -net user,hostfwd=tcp::8022-:22,hostfwd=tcp::80-:80,hostfwd=tcp::443-:443,hostfwd=tcp::8083-:8083 \
+    -nographic

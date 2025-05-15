@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+const logging = false; // Set to true to enable logging
 const net = require('net');
 const os = require('os');
 const path = require('path');
@@ -10,6 +10,7 @@ const SOCKET_PATH = os.platform() === 'win32' ? '\\\\.\\pipe\\qga' : '/tmp/qga.s
 // Log function
 function log(message, level = 'info') {
   const levels = { info: 'INFO', error: 'ERROR', warn: 'WARN' };
+  if ( !logging ) return; // Skip logging if disabled
   console.log(`[${levels[level] || 'INFO'}]: ${message}`);
 }
 
@@ -152,7 +153,8 @@ function main() {
       console.error(`Error executing command: ${err.message}`);
       process.exit(1);
     } else {
-      console.log(`Command output:\n${output}`);
+      log("Command output:")
+      console.log(`${output}`);
       process.exit(0);
     }
   });
