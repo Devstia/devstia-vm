@@ -30,7 +30,10 @@ echo ""
 echo "Starting automated install of HestiaCP $HESTIACP_VERSION."
 echo "This will take a long while, please be patient..."
 sleep 1
+
+# Update and upgrade the system
 apt update
+apt upgrade -y
 
 # Replace line in /etc/default/grub
 echo "Updating GRUB timeout value to zero."
@@ -488,6 +491,7 @@ cd /etc/hestiacp/hooks
 ./post_install.sh
 
 # Install Virtuosoft's HCPP-NodeApp plugin
+export NVM_DIR=
 cd /usr/local/hestia/plugins
 git clone --depth 1 --branch "v2.0.3" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
 cd /usr/local/hestia/plugins/nodeapp
@@ -537,11 +541,11 @@ systemctl restart hestia
 touch /etc/hestiacp/hooks/logging
 
 if [ "$DEVSTIA_DOMAIN" == "cp-local.dev.pw" ]; then
+    echo 'debian:personalweb' | chpasswd
     echo "Devstia Personal Web at https://$DEVSTIA_DOMAIN:8083 admin password: personalweb"
 else
     echo "Devstia Cloud Connect at https://$DEVSTIA_DOMAIN:8083 admin password: $CC_PW"
 fi
 # Reboot the server
-#echo "Shutting down server."
-#sleep 60
-#poweroff
+echo "Shutting down server."
+poweroff

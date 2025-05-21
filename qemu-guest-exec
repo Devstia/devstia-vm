@@ -153,7 +153,6 @@ function main() {
       console.error(`Error executing command: ${err.message}`);
       process.exit(1);
     } else {
-      log("Command output:")
       console.log(`${output}`);
       process.exit(0);
     }
