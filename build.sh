@@ -75,7 +75,7 @@ if [ "$(uname -m)" == "arm64" ]; then
         -drive if=pflash,format=raw,file=efi.img,file.locking=off,readonly=on \
         -drive if=pflash,format=raw,file=efi_vars.img \
         -device virtio-blk-pci,drive=drivedevstia-arm64,bootindex=0 \
-        -drive if=none,media=disk,id=drivedevstia-arm64,file=$DEVSTIA_DOMAIN,discard=unmap,detect-zeroes=unmap \
+        -drive if=none,media=disk,id=drivedevstia-arm64,file=$DEVSTIA_DOMAIN.img,discard=unmap,detect-zeroes=unmap \
         -device virtio-balloon-pci \
         -device virtio-serial-pci \
         -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
