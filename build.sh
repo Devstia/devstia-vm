@@ -8,8 +8,8 @@ HESTIACP_VERSION="1.9.3"
 DEVSTIA_DOMAIN="cp-local.dev.pw"
 
 # Check if qemu is installed
-if [ "$(uname -m)" == "aarch64" ]; then
-    qemu_path=$(which qemu-system-aarch64)
+if [ "$(uname -m)" == "arm64" ]; then
+    qemu_path=$(which qemu-system-arm64)
 else
     qemu_path=$(which qemu-system-x86_64)
 fi
@@ -33,7 +33,7 @@ if [ ! -d "build" ]; then
 fi
 
 # Check if debian exists in the build folder
-if [ "$(uname -m)" == "aarch64" ]; then
+if [ "$(uname -m)" == "arm64" ]; then
     zip_file="debian-arm64.zip"
 else
     zip_file="debian-amd64.zip"
@@ -56,7 +56,7 @@ fi
 
 cd build
 echo "Creating overlay image..."
-if [ "$(uname -m)" == "aarch64" ]; then
+if [ "$(uname -m)" == "arm64" ]; then
     qemu-img create -f qcow2 -o backing_file=./debian-arm64.img,backing_fmt=qcow2 $DEVSTIA_DOMAIN.img
 else
     qemu-img create -f qcow2 -o backing_file=./debian-amd64.img,backing_fmt=qcow2 $DEVSTIA_DOMAIN.img
@@ -65,8 +65,8 @@ echo "Overlay image created."
 
 # Spawn the VM with the debian-amd64 base image asynchronously
 echo "Booting our Debian Linux system..."
-if [ "$(uname -m)" == "aarch64" ]; then
-    qemu-system-aarch64 \
+if [ "$(uname -m)" == "arm64" ]; then
+    qemu-system-arm64 \
         -machine virt -accel hvf \
         -cpu host \
         -vga none \
@@ -138,7 +138,7 @@ echo "QEMU process $qemu_pid has finished."
 
 # Generate date tag in YYMMDD format
 DATE_TAG=$(date +%y%m%d)
-if [ "$(uname -m)" == "aarch64" ]; then
+if [ "$(uname -m)" == "arm64" ]; then
     DEVSTIA_RUNTIME=cp-local${DATE_TAG}-arm64
 else
     DEVSTIA_RUNTIME=cp-local${DATE_TAG}-amd64
