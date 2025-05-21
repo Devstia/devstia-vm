@@ -9,7 +9,7 @@ DEVSTIA_DOMAIN="cp-local.dev.pw"
 
 # Check if qemu is installed
 if [ "$(uname -m)" == "arm64" ]; then
-    qemu_path=$(which qemu-system-arm64)
+    qemu_path=$(which qemu-system-aarch64)
 else
     qemu_path=$(which qemu-system-x86_64)
 fi
@@ -66,7 +66,7 @@ echo "Overlay image created."
 # Spawn the VM with the debian-amd64 base image asynchronously
 echo "Booting our Debian Linux system..."
 if [ "$(uname -m)" == "arm64" ]; then
-    qemu-system-arm64 \
+    qemu-system-aarch64 \
         -machine virt -accel hvf \
         -cpu host \
         -vga none \
