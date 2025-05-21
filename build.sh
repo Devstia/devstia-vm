@@ -147,7 +147,7 @@ fi
 # Combine the overlay image with the base image
 cd build
 echo "Combining the overlay image with the base image into runtime image..."
-qemu-img convert -O qcow2 -o compat6,force_size=on $DEVSTIA_DOMAIN.img ./$DEVSTIA_RUNTIME.img
+qemu-img convert -O qcow2 -c $DEVSTIA_DOMAIN.img ./$DEVSTIA_RUNTIME.img
 
 # Compress the image into a tar.xz file
 echo "Compressing runtime image into a tar.xz file..."
