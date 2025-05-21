@@ -40,7 +40,7 @@ else
 fi
 if [ ! -f "build/$zip_file" ]; then
     echo "debian not found in the build folder. Downloading..."
-    curl -L -o "build/$zip_file" "https://github.com/virtuosoft-dev/qemu-debian/releases/download/v12.10.0/${zip_file}"
+    curl -L -o "build/$zip_file" "https://github.com/virtuosoft-dev/qemu-debian/releases/download/v12.11.0/${zip_file}"
     echo "Download complete. Unzipping..."
     unzip -o "build/$zip_file" -d "build"
     echo "Unzipping complete."
@@ -132,33 +132,35 @@ sshpass -p 'debian' scp -P 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFil
 echo "Executing remote.sh script on the VM..."
 sshpass -p 'debian' ssh -tt -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null debian@localhost "echo 'debian' | sudo -S /tmp/remote.sh"
 
-# # Execute the remote.sh script async on the VM as root using qemu-guest-exec
-# echo "Executing remote.sh script on the VM..."
-# response=$(./qemu-guest-exec "setsid nohup /tmp/remote.sh > /root/remote.log 2>&1 < /dev/null &")
-# echo $response
-
 # Wait for qemu_pid to finish
 wait $qemu_pid
 echo "QEMU process $qemu_pid has finished."
 
-# Compress the image into a tar.xz file
-echo "Compressing the image into a tar.xz file..."
-cd build
+# Generate date tag in YYMMDD format
+DATE_TAG=$(date +%y%m%d)
 if [ "$(uname -m)" == "aarch64" ]; then
-    DEVSTIA_COMPRESSED="$DEVSTIA_DOMAIN-arm64"
+    DEVSTIA_RUNTIME=cp-local${DATE_TAG}-arm64
 else
-    DEVSTIA_COMPRESSED="$DEVSTIA_DOMAIN-amd64"
+    DEVSTIA_RUNTIME=cp-local${DATE_TAG}-amd64
 fi
-tar -cJf "$DEVSTIA_COMPRESSED.tar.xz" "$DEVSTIA_DOMAIN.img"
+
+# Combine the overlay image with the base image
+cd build
+echo "Combining the overlay image with the base image into runtime image..."
+qemu-img convert -O qcow2 -o compat6,force_size=on $DEVSTIA_DOMAIN.img ./$DEVSTIA_RUNTIME.img
+
+# Compress the image into a tar.xz file
+echo "Compressing runtime image into a tar.xz file..."
+tar -cJf "$DEVSTIA_RUNTIME.tar.xz" "$DEVSTIA_RUNTIME.img"
 echo "Compression complete."
 
-# Check if the tar.xz is larger than 2046M, if so, split it into 2046M chunks
-filesize=$(stat -f%z "$DEVSTIA_COMPRESSED.tar.xz")
-if [ "$filesize" -gt $((2046 * 1024 * 1024)) ]; then
-    echo "Splitting the tar.xz file into 2046M chunks..."
-    split -b 2046M "$DEVSTIA_COMPRESSED.tar.xz" "$DEVSTIA_COMPRESSED.part"
+# Check if the tar.xz is larger than 2000M, if so, split it into 2000M chunks
+filesize=$(stat -f%z "$DEVSTIA_RUNTIME.tar.xz")
+if [ "$filesize" -gt $((2000 * 1000 * 1000)) ]; then
+    echo "Splitting the tar.xz file into 2000M chunks..."
+    split -b 2000M "$DEVSTIA_RUNTIME.tar.xz" "$DEVSTIA_RUNTIME.part"
     echo "Splitting complete."
 else
-    echo "The tar.xz file is less than 2046M. No need to split."
+    echo "The tar.xz file is less than 2000M. No need to split."
 fi
 cd ..
