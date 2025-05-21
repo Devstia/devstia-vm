@@ -547,5 +547,6 @@ else
     echo "Devstia Cloud Connect at https://$DEVSTIA_DOMAIN:8083 admin password: $CC_PW"
 fi
 # Reboot the server
+fstrim -av
 echo "Shutting down server."
 poweroff
