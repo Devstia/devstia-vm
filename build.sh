@@ -81,7 +81,7 @@ if [ "$(uname -m)" == "arm64" ]; then
         -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
         -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
         -net nic -net user,hostfwd=tcp::8022-:22,hostfwd=tcp::80-:80,hostfwd=tcp::443-:443,hostfwd=tcp::8083-:8083 \
-        -nographic
+        -nographic &
 else
     qemu-system-x86_64 \
         -machine q35,vmport=off -accel hvf \
