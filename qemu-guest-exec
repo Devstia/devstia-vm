@@ -1,0 +1,165 @@
+#!/usr/bin/env node
+const logging = false; // Set to true to enable logging
+const net = require('net');
+const os = require('os');
+const path = require('path');
+
+// Determine the socket path based on the operating system
+const SOCKET_PATH = os.platform() === 'win32' ? '\\\\.\\pipe\\qga' : '/tmp/qga.sock';
+
+// Log function
+function log(message, level = 'info') {
+  const levels = { info: 'INFO', error: 'ERROR', warn: 'WARN' };
+  if ( !logging ) return; // Skip logging if disabled
+  console.log(`[${levels[level] || 'INFO'}]: ${message}`);
+}
+
+function executeCommandInGuest(command, callback) {
+  // Use os.tmpdir() to determine the temporary directory
+  const tempDir = os.tmpdir();
+  const tempOutput = os.platform() === 'win32'
+    ? path.join(tempDir, `output-${Math.random().toString(36).substring(2, 15)}.txt`)
+    : `/tmp/output-${Math.random().toString(36).substring(2, 15)}.txt`;
+
+  const client = net.createConnection(SOCKET_PATH, () => {
+    log('Connected to QEMU Guest Agent');
+
+    const executeCommand = {
+      execute: 'guest-exec',
+      arguments: {
+        path: os.platform() === 'win32' ? 'cmd.exe' : '/bin/bash',
+        arg: os.platform() === 'win32'
+          ? ['/c', `${command} > ${tempOutput} 2>&1`]
+          : ['-c', `${command} > ${tempOutput} 2>&1`]
+      }
+    };
+
+    log(`Executing command: ${JSON.stringify(executeCommand)}`);
+    client.write(JSON.stringify(executeCommand));
+  });
+
+  let fileHandle = null;
+  let callbackInvoked = false;
+
+  client.on('data', (data) => {
+    if (callbackInvoked) return;
+
+    const response = JSON.parse(data.toString());
+    log(`Received response: ${JSON.stringify(response)}`);
+
+    if (response.return && response.return.pid) {
+      const pid = response.return.pid;
+      const statusCommand = {
+        execute: 'guest-exec-status',
+        arguments: { pid }
+      };
+
+      log('Monitoring command execution...');
+      setTimeout(() => {
+        client.write(JSON.stringify(statusCommand));
+      }, 2000);
+    } else if (response.return && response.return.exited) {
+      const openFileCommand = {
+        execute: 'guest-file-open',
+        arguments: {
+          path: tempOutput,
+          mode: 'r'
+        }
+      };
+
+      log(`Opening output file: ${JSON.stringify(openFileCommand)}`);
+      client.write(JSON.stringify(openFileCommand));
+    } else if (response.return && typeof response.return === 'number') {
+      fileHandle = response.return;
+      log(`File opened successfully. Handle: ${fileHandle}`);
+
+      const readFileCommand = {
+        execute: 'guest-file-read',
+        arguments: {
+          handle: fileHandle,
+          count: 4096
+        }
+      };
+
+      log(`Reading output file: ${JSON.stringify(readFileCommand)}`);
+      client.write(JSON.stringify(readFileCommand));
+    } else if (response.return && response.return['buf-b64']) {
+      const fileContent = Buffer.from(response.return['buf-b64'], 'base64').toString();
+      log(`Command output: ${fileContent}`);
+
+      if (response.return.eof) {
+        const closeFileCommand = {
+          execute: 'guest-file-close',
+          arguments: {
+            handle: fileHandle
+          }
+        };
+
+        log(`Closing file handle: ${JSON.stringify(closeFileCommand)}`);
+        client.write(JSON.stringify(closeFileCommand));
+
+        const cleanupCommand = {
+          execute: 'guest-exec',
+          arguments: {
+            path: os.platform() === 'win32' ? 'cmd.exe' : '/bin/bash',
+            arg: os.platform() === 'win32'
+              ? ['/c', `del ${tempOutput}`]
+              : ['-c', `rm -f ${tempOutput}`]
+          }
+        };
+
+        log(`Cleaning up temporary file: ${JSON.stringify(cleanupCommand)}`);
+        client.write(JSON.stringify(cleanupCommand));
+
+        callbackInvoked = true;
+        callback(null, fileContent);
+        client.end();
+      }
+    } else if (response.error) {
+      log(`Error: ${response.error.desc}`, 'error');
+      client.end();
+      callbackInvoked = true;
+      callback(new Error(response.error.desc));
+    }
+  });
+
+  client.on('end', () => {
+    log('Disconnected from QEMU Guest Agent');
+  });
+
+  client.on('error', (err) => {
+    log(`Error: ${err.message}`, 'error');
+    if (!callbackInvoked) {
+      callbackInvoked = true;
+      callback(err);
+    }
+    client.end();
+  });
+}
+
+// Main function to handle CLI arguments
+function main() {
+  const args = process.argv.slice(2); // Get command-line arguments
+  if (args.length === 0) {
+    console.error('Usage: qemu-guest-exec.js <command>');
+    process.exit(1);
+  }
+
+  const command = args.join(' '); // Combine all arguments into a single command
+  log(`Executing command in guest: ${command}`);
+
+  executeCommandInGuest(command, (err, output) => {
+    if (err) {
+      console.error(`Error executing command: ${err.message}`);
+      process.exit(1);
+    } else {
+      console.log(`${output}`);
+      process.exit(0);
+    }
+  });
+}
+
+// Run the main function if the script is executed directly
+if (require.main === module) {
+  main();
+}

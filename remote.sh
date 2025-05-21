@@ -24,13 +24,16 @@ done
 
 # Default values if not provided
 HESTIACP_VERSION="${HESTIACP_VERSION:-1.9.3}"
-DEVSTIA_DOMAIN="${DEVSTIA_DOMAIN:-local.dev.pw}"
+DEVSTIA_DOMAIN="${DEVSTIA_DOMAIN:-cp-local.dev.pw}"
 
 echo ""
 echo "Starting automated install of HestiaCP $HESTIACP_VERSION."
 echo "This will take a long while, please be patient..."
 sleep 1
+
+# Update and upgrade the system
 apt update
+apt upgrade -y
 
 # Replace line in /etc/default/grub
 echo "Updating GRUB timeout value to zero."
@@ -307,34 +310,34 @@ fi
 ###region Install HestiaCP for Devstia Personal Web edition
 ###
 cd /tmp
-if [ "$DEVSTIA_DOMAIN" == "local.dev.pw" ]; then
+if [ "$DEVSTIA_DOMAIN" == "cp-local.dev.pw" ]; then
     echo "Installing HestiaCP for Devstia Personal Web edition."
-    bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named no --mariadb no --mysql8 yes --postgresql yes --exim no --dovecot no --sieve no --clamav no --spamassassin no --iptables yes --fail2ban no --quota no --api yes --interactive no --with-debs yes --port '8083' --hostname 'local.dev.pw' --email 'devstia@dev.pw' --username 'admin' --password 'personalweb' --lang 'en' --webterminal no
+    bash hst-install-debian.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named no --mariadb no --mysql8 yes --postgresql yes --exim no --dovecot no --sieve no --clamav no --spamassassin no --iptables yes --fail2ban no --quota no --api yes --interactive no --with-debs yes --port '8083' --hostname 'cp-local.dev.pw' --email 'devstia@dev.pw' --username 'admin' --password 'personalweb' --lang 'en' --webterminal no
 
     # Customize the SSH login message for dev.pw
     cat <<EOT > /etc/update-motd.d/00-header
 #!/bin/bash
 printf '%b\n' '\033[2J\033[:H'
 clear
-asciiart="\e[38;5;244m 
-\e[38;5;244m                     \e[38;5;60m▒\e[38;5;130m▓\e[38;5;166m▄\e[38;5;167m▄
-\e[38;5;244m   Welcome to        \e[38;5;67m▐\e[38;5;32m▒\e[38;5;94m▒\e[38;5;208m▒\e[38;5;208m▒\e[38;5;208m▌
-\e[38;5;244m                     \e[38;5;66m▐\e[38;5;26m▒\e[38;5;32m▒\e[38;5;172m▒\e[38;5;214m▒\e[38;5;214m▒\e[38;5;214m▒
-\e[38;5;244m   Devstia\xe2\x84\xa2 PW       \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▒\e[38;5;239m▒\e[38;5;214m▒\e[38;5;214m▒▒
-\e[38;5;244m                     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;202m▒\e[38;5;202m▒▒
-\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;17m▓\e[38;5;202m▒\e[38;5;202m▒▒
-\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;196m▒\e[38;5;196m▒\e[38;5;160m▌
-\e[38;5;244m             \e[38;5;68m▄\e[38;5;32m▒\e[38;5;33m▒\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;89m▓\e[38;5;160m▓\e[38;5;160m▓
-\e[38;5;244m          \e[38;5;67m▒\e[38;5;68m░\e[38;5;32m░\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▀\e[38;5;60m▀  \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;160m▓\e[38;5;160m▓
-\e[38;5;244m        \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m▒\e[38;5;25m▓\e[38;5;25m▓▓▓     ▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌
-\e[38;5;244m       \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;25m▓\e[38;5;25m▓▓\e[38;5;25m▓     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;236m▓\e[38;5;124m▓\e[38;5;124m▓
-\e[38;5;244m      \e[38;5;32m▒\e[38;5;68m░░\e[38;5;32m░\e[38;5;32m▒\e[38;5;32m▒▒▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;1m▓\e[38;5;124m▓\e[38;5;124m▓
-\e[38;5;244m      \e[38;5;32m▒\e[38;5;32m▒▒\e[38;5;33m▒\e[38;5;33m▒▒▒\e[38;5;32m▌      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▓
-\e[38;5;244m     \e[38;5;67m▐\e[38;5;33m▒\e[38;5;33m▒▒\e[38;5;33m▒\e[38;5;32m▒\e[38;5;32m▒\e[38;5;32m▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▌
-\e[38;5;244m      \e[38;5;26m▒\e[38;5;26m▒▒\e[38;5;32m░\e[38;5;68m░\e[38;5;67m░\e[38;5;67m░\e[38;5;67m░    \e[38;5;32m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌   \e[38;5;244m \xc2\xa92025 Virtuosoft
-\e[38;5;244m      \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;67m░░ \e[38;5;67m▄\e[38;5;25m▓\e[38;5;60m▀ \e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓
-\e[38;5;244m        \e[38;5;60m▀\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;60m▀     \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▒▒\e[38;5;238m▒\e[38;5;89m▓\e[38;5;95m▄\e[38;5;95m▄
-\e[38;5;244m "
+asciiart="\e[38;5;244m 
+\e[38;5;244m                     \e[38;5;60m▒\e[38;5;130m▓\e[38;5;166m▄\e[38;5;167m▄
+\e[38;5;244m   Welcome to        \e[38;5;67m▐\e[38;5;32m▒\e[38;5;94m▒\e[38;5;208m▒\e[38;5;208m▒\e[38;5;208m▌
+\e[38;5;244m                     \e[38;5;66m▐\e[38;5;26m▒\e[38;5;32m▒\e[38;5;172m▒\e[38;5;214m▒\e[38;5;214m▒\e[38;5;214m▒
+\e[38;5;244m   Devstia\xe2\x84\xa2 PW       \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▒\e[38;5;239m▒\e[38;5;214m▒\e[38;5;214m▒▒
+\e[38;5;244m                     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;202m▒\e[38;5;202m▒▒
+\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;17m▓\e[38;5;202m▒\e[38;5;202m▒▒
+\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;196m▒\e[38;5;196m▒\e[38;5;160m▌
+\e[38;5;244m             \e[38;5;68m▄\e[38;5;32m▒\e[38;5;33m▒\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;89m▓\e[38;5;160m▓\e[38;5;160m▓
+\e[38;5;244m          \e[38;5;67m▒\e[38;5;68m░\e[38;5;32m░\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▀\e[38;5;60m▀  \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;160m▓\e[38;5;160m▓
+\e[38;5;244m        \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m▒\e[38;5;25m▓\e[38;5;25m▓▓▓     ▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌
+\e[38;5;244m       \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;25m▓\e[38;5;25m▓▓\e[38;5;25m▓     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;236m▓\e[38;5;124m▓\e[38;5;124m▓
+\e[38;5;244m      \e[38;5;32m▒\e[38;5;68m░░\e[38;5;32m░\e[38;5;32m▒\e[38;5;32m▒▒▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;1m▓\e[38;5;124m▓\e[38;5;124m▓
+\e[38;5;244m      \e[38;5;32m▒\e[38;5;32m▒▒\e[38;5;33m▒\e[38;5;33m▒▒▒\e[38;5;32m▌      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▓
+\e[38;5;244m     \e[38;5;67m▐\e[38;5;33m▒\e[38;5;33m▒▒\e[38;5;33m▒\e[38;5;32m▒\e[38;5;32m▒\e[38;5;32m▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▌
+\e[38;5;244m      \e[38;5;26m▒\e[38;5;26m▒▒\e[38;5;32m░\e[38;5;68m░\e[38;5;67m░\e[38;5;67m░\e[38;5;67m░    \e[38;5;32m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌   \e[38;5;244m \xc2\xa92025 Virtuosoft
+\e[38;5;244m      \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;67m░░ \e[38;5;67m▄\e[38;5;25m▓\e[38;5;60m▀ \e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓
+\e[38;5;244m        \e[38;5;60m▀\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;60m▀     \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▒▒\e[38;5;238m▒\e[38;5;89m▓\e[38;5;95m▄\e[38;5;95m▄
+\e[38;5;244m "
 echo -e "\$asciiart"
 EOT
     chmod +x /etc/update-motd.d/00-header
@@ -397,25 +400,25 @@ else
 #!/bin/bash
 printf '%b\n' '\033[2J\033[:H'
 clear
-asciiart="\e[38;5;244m 
-\e[38;5;244m                     \e[38;5;60m▒\e[38;5;130m▓\e[38;5;166m▄\e[38;5;167m▄
-\e[38;5;244m   Welcome to        \e[38;5;67m▐\e[38;5;32m▒\e[38;5;94m▒\e[38;5;208m▒\e[38;5;208m▒\e[38;5;208m▌
-\e[38;5;244m                     \e[38;5;66m▐\e[38;5;26m▒\e[38;5;32m▒\e[38;5;172m▒\e[38;5;214m▒\e[38;5;214m▒\e[38;5;214m▒
-\e[38;5;244m   Devstia\xe2\x84\xa2 CC       \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▒\e[38;5;239m▒\e[38;5;214m▒\e[38;5;214m▒▒
-\e[38;5;244m                     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;202m▒\e[38;5;202m▒▒
-\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;17m▓\e[38;5;202m▒\e[38;5;202m▒▒
-\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;196m▒\e[38;5;196m▒\e[38;5;160m▌
-\e[38;5;244m             \e[38;5;68m▄\e[38;5;32m▒\e[38;5;33m▒\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;89m▓\e[38;5;160m▓\e[38;5;160m▓
-\e[38;5;244m          \e[38;5;67m▒\e[38;5;68m░\e[38;5;32m░\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▀\e[38;5;60m▀  \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;160m▓\e[38;5;160m▓
-\e[38;5;244m        \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m▒\e[38;5;25m▓\e[38;5;25m▓▓▓     ▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌
-\e[38;5;244m       \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;25m▓\e[38;5;25m▓▓\e[38;5;25m▓     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;236m▓\e[38;5;124m▓\e[38;5;124m▓
-\e[38;5;244m      \e[38;5;32m▒\e[38;5;68m░░\e[38;5;32m░\e[38;5;32m▒\e[38;5;32m▒▒▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;1m▓\e[38;5;124m▓\e[38;5;124m▓
-\e[38;5;244m      \e[38;5;32m▒\e[38;5;32m▒▒\e[38;5;33m▒\e[38;5;33m▒▒▒\e[38;5;32m▌      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▓
-\e[38;5;244m     \e[38;5;67m▐\e[38;5;33m▒\e[38;5;33m▒▒\e[38;5;33m▒\e[38;5;32m▒\e[38;5;32m▒\e[38;5;32m▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▌
-\e[38;5;244m      \e[38;5;26m▒\e[38;5;26m▒▒\e[38;5;32m░\e[38;5;68m░\e[38;5;67m░\e[38;5;67m░\e[38;5;67m░    \e[38;5;32m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌   \e[38;5;244m \xc2\xa92025 Virtuosoft
-\e[38;5;244m      \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;67m░░ \e[38;5;67m▄\e[38;5;25m▓\e[38;5;60m▀ \e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓
-\e[38;5;244m        \e[38;5;60m▀\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;60m▀     \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▒▒\e[38;5;238m▒\e[38;5;89m▓\e[38;5;95m▄\e[38;5;95m▄
-\e[38;5;244m "
+asciiart="\e[38;5;244m 
+\e[38;5;244m                     \e[38;5;60m▒\e[38;5;130m▓\e[38;5;166m▄\e[38;5;167m▄
+\e[38;5;244m   Welcome to        \e[38;5;67m▐\e[38;5;32m▒\e[38;5;94m▒\e[38;5;208m▒\e[38;5;208m▒\e[38;5;208m▌
+\e[38;5;244m                     \e[38;5;66m▐\e[38;5;26m▒\e[38;5;32m▒\e[38;5;172m▒\e[38;5;214m▒\e[38;5;214m▒\e[38;5;214m▒
+\e[38;5;244m   Devstia\xe2\x84\xa2 CC       \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▒\e[38;5;239m▒\e[38;5;214m▒\e[38;5;214m▒▒
+\e[38;5;244m                     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;202m▒\e[38;5;202m▒▒
+\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;17m▓\e[38;5;202m▒\e[38;5;202m▒▒
+\e[38;5;244m                     \e[38;5;60m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;196m▒\e[38;5;196m▒\e[38;5;160m▌
+\e[38;5;244m             \e[38;5;68m▄\e[38;5;32m▒\e[38;5;33m▒\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;89m▓\e[38;5;160m▓\e[38;5;160m▓
+\e[38;5;244m          \e[38;5;67m▒\e[38;5;68m░\e[38;5;32m░\e[38;5;26m▒\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▀\e[38;5;60m▀  \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;160m▓\e[38;5;160m▓
+\e[38;5;244m        \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m▒\e[38;5;25m▓\e[38;5;25m▓▓▓     ▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌
+\e[38;5;244m       \e[38;5;67m░\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;25m▓\e[38;5;25m▓▓\e[38;5;25m▓     \e[38;5;60m▐\e[38;5;25m▓\e[38;5;25m▓\e[38;5;236m▓\e[38;5;124m▓\e[38;5;124m▓
+\e[38;5;244m      \e[38;5;32m▒\e[38;5;68m░░\e[38;5;32m░\e[38;5;32m▒\e[38;5;32m▒▒▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;1m▓\e[38;5;124m▓\e[38;5;124m▓
+\e[38;5;244m      \e[38;5;32m▒\e[38;5;32m▒▒\e[38;5;33m▒\e[38;5;33m▒▒▒\e[38;5;32m▌      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▓
+\e[38;5;244m     \e[38;5;67m▐\e[38;5;33m▒\e[38;5;33m▒▒\e[38;5;33m▒\e[38;5;32m▒\e[38;5;32m▒\e[38;5;32m▒      \e[38;5;25m▓\e[38;5;25m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;88m▓\e[38;5;88m▓\e[38;5;88m▌
+\e[38;5;244m      \e[38;5;26m▒\e[38;5;26m▒▒\e[38;5;32m░\e[38;5;68m░\e[38;5;67m░\e[38;5;67m░\e[38;5;67m░    \e[38;5;32m▐\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓\e[38;5;124m▌   \e[38;5;244m \xc2\xa92025 Virtuosoft
+\e[38;5;244m      \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;67m░\e[38;5;67m░\e[38;5;31m█\e[38;5;67m░░ \e[38;5;67m▄\e[38;5;25m▓\e[38;5;60m▀ \e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;53m▓\e[38;5;124m▓\e[38;5;124m▓
+\e[38;5;244m        \e[38;5;60m▀\e[38;5;24m▓\e[38;5;24m▓\e[38;5;24m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;25m▓\e[38;5;60m▀     \e[38;5;60m▀\e[38;5;25m▓\e[38;5;25m▒▒\e[38;5;238m▒\e[38;5;89m▓\e[38;5;95m▄\e[38;5;95m▄
+\e[38;5;244m "
 echo -e "\$asciiart"
 EOT
     chmod +x /etc/update-motd.d/00-header
@@ -483,13 +486,14 @@ sed -i 's/^#SystemMaxFiles=.*/SystemMaxFiles=5/' "$file_path"
 
 # Install Virtuosoft's HesticCP-Pluginable project
 cd /etc/hestiacp
-git clone --depth 1 --branch "v2.0.1" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
+git clone --depth 1 --branch "v2.0.4" https://github.com/virtuosoft-dev/hestiacp-pluginable.git ./hooks
 cd /etc/hestiacp/hooks
 ./post_install.sh
 
 # Install Virtuosoft's HCPP-NodeApp plugin
+export NVM_DIR=
 cd /usr/local/hestia/plugins
-git clone --depth 1 --branch "v2.0.2" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
+git clone --depth 1 --branch "v2.0.3" https://github.com/virtuosoft-dev/hcpp-nodeapp.git ./nodeapp
 cd /usr/local/hestia/plugins/nodeapp
 ./install
 touch "/usr/local/hestia/data/hcpp/installed/nodeapp"
@@ -536,12 +540,13 @@ cd /usr/local/hestia/bin
 systemctl restart hestia
 touch /etc/hestiacp/hooks/logging
 
-if [ "$DEVSTIA_DOMAIN" == "local.dev.pw" ]; then
+if [ "$DEVSTIA_DOMAIN" == "cp-local.dev.pw" ]; then
+    echo 'debian:personalweb' | chpasswd
     echo "Devstia Personal Web at https://$DEVSTIA_DOMAIN:8083 admin password: personalweb"
 else
     echo "Devstia Cloud Connect at https://$DEVSTIA_DOMAIN:8083 admin password: $CC_PW"
 fi
 # Reboot the server
-#echo "Shutting down server."
-#sleep 60
-#poweroff
+fstrim -av
+echo "Shutting down server."
+poweroff
