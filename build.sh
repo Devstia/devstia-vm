@@ -146,16 +146,31 @@ fi
 
 # Combine the overlay image with the base image into a compressed runtime image
 cd build
+if [ -f "$DEVSTIA_RUNTIME.img" ]; then
+    echo "Removing old runtime image..."
+    rm -f "$DEVSTIA_RUNTIME.img"
+fi
 echo "Combining the overlay image with the base image into runtime image..."
 qemu-img convert -O qcow2 -c $DEVSTIA_DOMAIN.img ./$DEVSTIA_RUNTIME.img
 
+echo "Runtime image created: $DEVSTIA_RUNTIME.img"
+
+# Compress the runtime image into a tar.xz file
+echo "Compressing the runtime image into a tar.xz file..."
+if [ -f "$DEVSTIA_RUNTIME.tar.xz" ]; then
+    echo "Removing old tar.xz file..."
+    rm -f "$DEVSTIA_RUNTIME.tar.xz"
+fi
+tar -cJf "$DEVSTIA_RUNTIME.tar.xz" "$DEVSTIA_RUNTIME.img"
+
 # Check if the .img is larger than 2000M, if so, split it into 2000M chunks
-filesize=$(stat -f%z "$DEVSTIA_RUNTIME.img")
+filesize=$(stat -f%z "$DEVSTIA_RUNTIME.tar.xz")
 if [ "$filesize" -gt $((2000 * 1000 * 1000)) ]; then
-    echo "Splitting the .img file into 2000M chunks..."
-    split -b 2000M -d "$DEVSTIA_RUNTIME.img" "$DEVSTIA_RUNTIME.part"
+    echo "Splitting the .tar.xz file into 2000M chunks..."
+    split -b 2000M -d "$DEVSTIA_RUNTIME.tar.xz" "$DEVSTIA_RUNTIME.part"
     echo "Splitting complete."
 else
-    echo "The .img file is less than 2000M. No need to split."
+    echo "The .tar.xz file is less than 2000M. No need to split."
 fi
 cd ..
+echo "Build process complete."
